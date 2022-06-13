@@ -62,8 +62,8 @@ def render(operand, join_str=""):
 
 
 def create_data_files(data_dir: str = DEFAULT_DATA_DIR):
-    ArithmeticTokenizer.create_token_file(data_dir)
-    ArithmeticDataset.create_dataset_files(data_dir)
+    # ArithmeticTokenizer.create_token_file(data_dir)  # Not sure what this is... seems like a bug
+    ArithmeticDataset.create_data_file('+', data_dir=data_dir)  # The original code also seems like a bug
 
 
 class ArithmeticTokenizer:
@@ -358,22 +358,23 @@ class ArithmeticDataset:
 
         return data
 
-    # @classmethod
-    # def create_data_file(
-    #    cls, operator, operand_length=None, shuffle=True, data_dir=DEFAULT_DATA_DIR
-    # ):
-    #    if VALID_OPERATORS[operator]["binary_eval"]:
-    #        cls.write_dataset(
-    #            cls.make_binary_operation_data(operator), paths["ds_file"]
-    #        )
-    #
-    #    pass
+    @classmethod
+    def create_data_file(
+       cls, operator, operand_length=None, shuffle=True, data_dir=DEFAULT_DATA_DIR
+    ):
+        if not os.path.isdir(data_dir):
+            os.mkdir(data_dir)
+        path = os.path.join(data_dir, "ds_file")
+        # if VALID_OPERATORS[operator]["binary_eval"]:
+        cls.write_dataset(
+            cls._make_binary_operation_data(operator), path
+        )
 
-    # @classmethod
-    # def write_dataset(eqs: List[str], ds_file: str):
-    #    print(f"-> writing {ds_file}", flush=True)
-    #    with open(ds_file, "w") as fh:
-    #        fh.writelines([EOS_TOKEN + " " + eq + " " + EOS_TOKEN + "\n" for eq in eqs])
+    @classmethod
+    def write_dataset(cls, eqs: List[str], ds_file: str):
+       print(f"-> writing {ds_file}", flush=True)
+       with open(ds_file, "w") as fh:
+           fh.writelines([EOS_TOKEN + " " + eq + " " + EOS_TOKEN + "\n" for eq in eqs])
 
     @classmethod
     def _make_lists(cls, sizes=[2, 3], nums=NUMS):

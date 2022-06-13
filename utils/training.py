@@ -22,16 +22,16 @@ from pytorch_lightning.loggers import CSVLogger
 from torch import Tensor
 from torch.optim.lr_scheduler import LambdaLR
 
-import grok.metrics as metrics
-from grok.data import (
+import utils.metrics as metrics
+from data.data import (
     DEFAULT_DATA_DIR,
     EOS_TOKEN,
     VALID_OPERATORS,
     ArithmeticDataset,
     ArithmeticIterator,
 )
-from grok.transformer import Transformer
-from grok.measure import get_sharpness
+from models.transformer import Transformer
+from utils.measure import get_sharpness
 
 DEFAULT_LOG_DIR = "logs"
 
@@ -43,11 +43,14 @@ class TrainableTransformer(LightningModule):
 
     def __init__(self, hparams: Namespace) -> None:
         """
-        :param hparams: An argparse.Namespace with parameters defined in
-                        self.add_model_specific_args().
+        :param hparams:
         """
         super().__init__()
-        self.hparams = hparams  # type: ignore
+        # self.hparams = hparams  # type: ignore  # deprecated
+        for att in vars(hparams):
+            self.hparams[att] = vars(hparams)[att]
+
+        print('Hyper parameters', self.hparams)
         self.prepare_data()
 
         self.transformer = Transformer(
@@ -558,6 +561,9 @@ class TrainableTransformer(LightningModule):
         :param batch_idx: which batch this is in the epoch.
         :returns: a dict with val_loss, val_accuracy
         """
+        if len(outputs) == 0:
+            return
+
         validation_is_real = len(outputs[0]) != 0
 
         if validation_is_real:

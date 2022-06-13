@@ -15,7 +15,7 @@ import torch
 from mpl_toolkits.axes_grid1 import make_axes_locatable
 from tqdm import tqdm
 
-from grok.data import ArithmeticDataset
+from data.data import ArithmeticDataset
 
 logging.basicConfig(level=logging.ERROR)
 logger = logging.getLogger("grok.view_metrics")
